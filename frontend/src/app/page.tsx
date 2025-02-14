@@ -40,10 +40,10 @@ export default function Home() {
       {/* first section, should be able to open up a side panel */}
       <div className="relative w-[15rem] h-[10rem] bg-white border border-gray-200 rounded-lg shadow-lg mt-24">
         <h1 className="absolute mt-4 text-left text-[12px] font-amiri w-[6rem] mx-auto left-0 right-0">
-          "To my Melany,
+          To my Melany,
           Here's a little space I made for 
           you this Valentines! I hope you
-          enjoy it" 
+          enjoy it 
         </h1>
         <Image src={ribbon} alt="ribbon" className="absolute -top-8 -left-4" />
         <Image src={waxSeal} alt="wax seal" className="absolute -top-4 right-0" />
