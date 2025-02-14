@@ -12,6 +12,10 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        amiri: ['Amiri', 'Arial', 'sans-serif'],
+        mooMoo: ['SwankyandMooMoo', 'Arial', 'sans-serif'],
+      }
     },
   },
   plugins: [],
