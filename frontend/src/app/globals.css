@@ -3,13 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --background: #FEFBF1;
+  --background: #E9CEE5;
   --foreground: #000000;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #FEFBF1;
+    --background: #E9CEE5
+    ;
     --foreground: #000000;
   }
 }
@@ -33,3 +34,40 @@ body {
   background: var(--background);
   font-family: 'Amiri', 'SwankyandMooMoo';
 }
+
+/* Pixel art loading bar */
+@keyframes pixel-load-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.pixel-loading-bar {
+  width: 300px;
+  height: 24px;
+  border: 3px solid #2d2d2d;
+  background: #e8e8e8;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  overflow: hidden;
+}
+
+.pixel-loading-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: #2a9d8f;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.25), inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+  animation: pixel-load-fill 500ms steps(5, end) forwards;
+}
+
+.pixel-loading-text {
+  font-family: var(--font-press-start), monospace;
+  font-size: 8px;
+  margin-top: 8px;
+  color: #2d2d2d;
+  letter-spacing: 0.05em;
+}
+

@@ -33,23 +33,68 @@ import snoopyAndMiffy from "../../public/stickers/snoopyAndMiffyHugging.png"
 import arrow from "../../public/stickers/arrow.png"
 
 import Image from "next/image";
+import { useState } from "react";
 
 export default function Home() {
+  const [noClicks, setNoClicks] = useState(0);
+  const [saidYes, setSaidYes] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+
+  const questionText = saidYes
+    ? "Yay!"
+    : noClicks === 0
+      ? "Will you be my valentine?"
+      : noClicks === 1
+        ? "Are you sure?"
+        : "Please reconsider";
+
+  const yesButtonSize =
+    noClicks === 0 ? "px-12 py-8" : noClicks === 1 ? "px-14 py-9 text-base" : "px-16 py-10 text-lg";
+  const noButtonSize =
+    noClicks === 0 ? "px-12 py-8" : noClicks === 1 ? "px-10 py-6 text-sm" : "px-6 py-4 text-xs";
+
+  const noButtonClicked = () => setNoClicks((prev) => Math.min(prev + 1, 2));
   return (
     <div className="flex flex-col items-center min-h-screen mb-12">
-      {/* first section, should be able to open up a side panel */}
-      <div className="relative w-[15rem] h-[10rem] bg-white border border-gray-200 rounded-lg shadow-lg mt-24">
-        <h1 className="absolute mt-4 text-left text-[12px] font-amiri w-[6rem] mx-auto left-0 right-0">
-          To my Melany,
-          Here's a little space I made for 
-          you this Valentines! I hope you
-          enjoy it 
-        </h1>
-        <Image src={ribbon} alt="ribbon" className="absolute -top-8 -left-4" />
-        <Image src={waxSeal} alt="wax seal" className="absolute -top-4 right-0" />
-        <Image src={starButton} alt="star button" className="absolute top-20 left-0" />
+      {/* first section, gif + yes or no button */}
+      <div className="flex flex-col items-center justify-center w-full max-w-[250px] text-center mt-16">
+        <Image
+          src="https://media.tenor.com/QhaBUYKxgb0AAAAi/dance-gomu.gif"
+          alt="Dance Gomu sticker"
+          width={239}
+          height={232}
+          className="w-full h-auto object-contain"
+          unoptimized
+        />
+         <h1 className="text-[24px] font-amiri mt-4 font-bold">{questionText}</h1>
+         <div className="flex flex-row gap-4 mt-4 justify-center items-center">
+          <button
+            onClick={() => {
+            setSaidYes(true);
+            setTimeout(() => setShowContent(true), 500);
+          }}
+            className={`bg-[#075019] text-white rounded-md border border-black transition-all ${yesButtonSize}`}
+          >
+            Yes
+          </button>
+          <button
+            onClick={noButtonClicked}
+            className={`bg-[#BE2C2C] text-white rounded-md border border-black transition-all ${noButtonSize}`}
+          >
+            No
+          </button>
+         </div>
+        {saidYes && !showContent && (
+          <div className="flex flex-col items-center mt-8">
+            <div className="pixel-loading-bar">
+              <div className="pixel-loading-bar-fill" />
+            </div>
+            <span className="pixel-loading-text">LOADING...</span>
+          </div>
+        )}
       </div>
-
+      {showContent && (
+        <>
       {/* first header, should be able to open up a side panel */}
       <div className="relative w-[8rem] h-[3rem] bg-white border border-gray-200 rounded-lg shadow-lg mt-8">
         <ol className="absolute mt-4 text-center text-[12px] font-amiri w-[6rem] mx-auto left-0 right-0">
@@ -190,6 +235,8 @@ export default function Home() {
         <Image src={arrow} alt="arrow" className="absolute top-6 -right-8" />
         <p className="absolute -top-2 -right-20 text-[40px] font-mooMoo">Us</p>
       </div>
+        </>
+      )}
 
     </div>
   );
