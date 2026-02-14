@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image";
+import confetti from "canvas-confetti";
 
 import first_frame from "../../public/polaroids/first_frame.png"
 import second_frame from "../../public/polaroids/second_frame.png"
@@ -13,8 +14,9 @@ import miffy from "../../public/stickers2/miffy.png"
 import smiski from "../../public/stickers2/smiski.png"
 
 import paper from "../../public/other/paper.svg"
+import scrapbook from "../../public/other/scrapbook.svg"
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
 
 const Crossword = dynamic(
@@ -22,6 +24,44 @@ const Crossword = dynamic(
   { ssr: false }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) as any;
+
+function fireworkCelebration() {
+  const duration = 2500;
+  const end = Date.now() + duration;
+  const colors = ["#ff6b6b", "#feca57", "#48dbfb", "#ff9ff3", "#54a0ff", "#5f27cd"];
+
+  const frame = () => {
+    confetti({
+      particleCount: 3,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 },
+      colors,
+      shapes: ["circle", "square"],
+    });
+    confetti({
+      particleCount: 3,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 },
+      colors,
+      shapes: ["circle", "square"],
+    });
+    confetti({
+      particleCount: 5,
+      angle: 90,
+      spread: 100,
+      origin: { x: 0.5, y: 0.6 },
+      colors,
+      shapes: ["circle", "square"],
+      scalar: 1.2,
+    });
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  };
+  frame();
+}
 
 export default function Home() {
   const [noClicks, setNoClicks] = useState(0);
@@ -34,7 +74,54 @@ export default function Home() {
   const [dragging, setDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
 
+  const [paperDismissed, setPaperDismissed] = useState(false);
+  const paperTouchStartX = useRef(0);
+
+  const answerKey = [
+    { num: 1, answer: "GOODFRIENDS" },
+    { num: 2, answer: "DUMPLINGHOUSE" },
+    { num: 3, answer: "CLIFFBAR" },
+    { num: 4, answer: "SNORLAX" },
+    { num: 5, answer: "BIS2A" },
+    { num: 6, answer: "SUSHI" },
+    { num: 7, answer: "SANFRANCISCO" },
+    { num: 8, answer: "CHEETOH" },
+  ];
+  const paperTouchDeltaX = useRef(0);
+
   const carouselFrames = [first_frame, second_frame, third_frame, fourth_frame];
+
+  const crosswordData = useMemo(
+    () => ({
+      across: {
+        1: { clue: "Our poke place", answer: "GOODFRIENDS", row: 0, col: 0 },
+        6: { clue: "Your fav pillow", answer: "SUSHI", row: 5, col: 5 },
+        4: { clue: "Our favorite food to eat together", answer: "SNORLAX", row: 6, col: 8 },
+        7: { clue: "Our 1 year date", answer: "SANFRANCISCO", row: 11, col: 11 },
+      },
+      down: {
+        2: { clue: "Our first date", answer: "DUMPLINGHOUSE", row: 0, col: 9 },
+        3: { clue: "My old morning snacks I'd buy at the MU", answer: "CLIFFBAR", row: 5, col: 12 },
+        5: { clue: "Our only class together", answer: "BIS2A", row: 2, col: 13 },
+        8: { clue: "Cat we saw", answer: "CHEETOH", row: 11, col: 18 },
+      },
+    }),
+    []
+  );
+
+  const crosswordTheme = useMemo(
+    () => ({
+      columnBreakpoint: "0px",
+      gridBackground: "transparent",
+      cellBackground: "#fff",
+      cellBorder: "#000",
+      textColor: "#000",
+      numberColor: "rgba(0,0,0,0.4)",
+      focusBackground: "#f7c6c7",
+      highlightBackground: "#fef3f3",
+    }),
+    []
+  );
 
   const handleSwipeStart = useCallback((clientX: number) => {
     touchStartX.current = clientX;
@@ -59,6 +146,21 @@ export default function Home() {
       setCarouselIndex((prev) => Math.max(prev - 1, 0));
     }
   }, [dragging, carouselFrames.length]);
+
+  const handlePaperSwipeStart = useCallback((clientX: number) => {
+    paperTouchStartX.current = clientX;
+    paperTouchDeltaX.current = 0;
+  }, []);
+
+  const handlePaperSwipeMove = useCallback((clientX: number) => {
+    paperTouchDeltaX.current = clientX - paperTouchStartX.current;
+  }, []);
+
+  const handlePaperSwipeEnd = useCallback(() => {
+    if (Math.abs(paperTouchDeltaX.current) > 80) {
+      setPaperDismissed(true);
+    }
+  }, []);
 
   const questionText = saidYes
     ? "Yay!"
@@ -88,7 +190,7 @@ export default function Home() {
         />
         {!showContent && (
           <>
-         <h1 className="text-[24px] font-amiri mt-4 font-bold">{questionText}</h1>
+         <h1 className="text-lg sm:text-xl md:text-[24px] font-amiri mt-4 font-bold px-2">{questionText}</h1>
          <div className="flex flex-row gap-4 mt-4 justify-center items-center">
           <button
             onClick={() => {
@@ -183,34 +285,65 @@ export default function Home() {
       </div>
 
       {/* crossword puzzle */}
-      <div className="mt-10 w-full max-w-[800px]">
-  <Crossword
-    data={{
-      across: {
-        1: { clue: "Our poke place", answer: "GOODFRIENDS", row: 0, col: 0 },
-        6: { clue: "Your fav pillow", answer: "SUSHI", row: 5, col: 5 },
-        4: { clue: "Our favorite food to eat together", answer: "SNORLAX", row: 6, col: 8 },
-        7: { clue: "Our 1 year date", answer: "SANFRANCISCO", row: 11, col: 11 },
-        // 9: { clue: "Our first movie", answer: "INTOTHESPIDERVERSE", row: 15, col: 4 },
-      },
-      down: {
-        2: { clue: "Our first date", answer: "DUMPLINGHOUSE", row: 0, col: 9 },
-        3: { clue: "My old morning snacks I'd buy at the MU", answer: "CLIFFBAR", row: 5, col: 12 },
-        5: { clue: "Our only class together", answer: "BIS2A", row: 2, col: 13 },
-        8: { clue: "Cat we saw", answer: "CHEETOH", row: 11, col: 18 },
-      },
+      <div className="crossword-section relative mt-16 sm:mt-24 md:mt-32 w-full max-w-[800px] flex flex-row flex-wrap gap-x-2 px-2 sm:px-4">
+        {!paperDismissed ? (
+          <div
+            className="absolute -top-8 -right-4 sm:-top-12 sm:-right-8 md:-top-20 md:-right-20 z-10 cursor-grab active:cursor-grabbing select-none touch-pan-y w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52"
+            onTouchStart={(e) => handlePaperSwipeStart(e.touches[0].clientX)}
+            onTouchMove={(e) => handlePaperSwipeMove(e.touches[0].clientX)}
+            onTouchEnd={handlePaperSwipeEnd}
+            onMouseDown={(e) => { e.preventDefault(); handlePaperSwipeStart(e.clientX); }}
+            onMouseMove={(e) => handlePaperSwipeMove(e.clientX)}
+            onMouseUp={handlePaperSwipeEnd}
+            onMouseLeave={handlePaperSwipeEnd}
+          >
+            <div className="relative w-full h-full">
+              <Image
+                src={paper}
+                alt="paper"
+                fill
+                sizes="(max-width: 640px) 96px, (max-width: 768px) 128px, (max-width: 1024px) 176px, 208px"
+                draggable={false}
+                className="pointer-events-none object-contain"
+              />
+            </div>
+          </div>
+        ) : (
+          <div
+            className="absolute -top-8 -right-2 sm:-top-12 sm:-right-8 md:-top-20 md:-right-60 z-10 w-[200px] sm:w-[260px] md:w-[320px] lg:w-[360px] origin-center"
+            style={{ transform: "rotate(12deg)" }}
+          >
+            <div className="bg-transparent text-gray-800/90 text-xs sm:text-sm font-medium space-y-1 sm:space-y-2 p-2 sm:p-4">
+              {answerKey.map(({ num, answer }, i) => (
+                <div key={i} className="flex gap-1 sm:gap-2 items-baseline">
+                  <span className="text-gray-600/90 shrink-0">{num}.</span>
+                  <span className="font-mono tracking-wide break-all">{answer}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <Crossword
+    onCrosswordComplete={(correct: boolean) => {
+      if (correct) fireworkCelebration();
     }}
-    theme={{
-      gridBackground: "transparent",
-      cellBackground: "#fff",
-      cellBorder: "#000",
-      textColor: "#000",
-      numberColor: "rgba(0,0,0,0.4)",
-      focusBackground: "#f7c6c7",
-      highlightBackground: "#fef3f3",
-    }}
+    data={crosswordData}
+    theme={crosswordTheme}
+    useStorage
+    storageKey="valentines-crossword"
   />
-</div>
+      </div>
+
+      {/* scrapbook */}
+      <div className="flex justify-center mt-16 w-full px-4">
+        <Image
+          src={scrapbook}
+          alt="Scrapbook"
+          width={500}
+          height={500}
+          className="w-full max-w-[500px] h-auto object-contain"
+        />
+      </div>
     </>
     )}
     </div>

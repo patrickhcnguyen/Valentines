@@ -71,3 +71,14 @@ body {
   letter-spacing: 0.05em;
 }
 
+/* Clues on the left, grid on the right; clues closer to grid */
+.crossword-section .grid {
+  order: 2;
+}
+.crossword-section .clues {
+  order: 1;
+  padding-left: 0 !important;
+  padding-right: 0.5rem !important;
+  font-size: clamp(0.75rem, 2.5vw, 1rem);
+}
+
