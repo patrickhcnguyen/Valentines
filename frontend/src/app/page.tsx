@@ -1,44 +1,64 @@
 "use client"
 
-import ribbon from "../../public/stickers/ribbon.png"
-import waxSeal from "../../public/stickers/wax seal.png"
-import starButton from "../../public/stickers/starButton.png"
-import sfPolaroid from "../../public/stickers/sfPolaroid.png"
-import miffy1 from "../../public/stickers/miffy1.png"
-import stargazerLily from "../../public/stickers/stargazerLily.png"
-import strawberry from "../../public/stickers/strawberry.png"
-import matcha from "../../public/stickers/matcha.png"
-import kiwi from "../../public/stickers/kiwi.png"
-import conch from "../../public/stickers/conch.png"
-import blueHeart from "../../public/stickers/blueHeart.png"
-
-import point5Polaroid from "../../public/stickers/point5 polaroid.png"
-
-import miffyPolaroid from "../../public/stickers/miffy polaroid.png"
-
-import gardenPolaroid from "../../public/stickers/garden polaroid.png"
-import tomato from "../../public/stickers/tomato.png"
-
-import museumPolaroid from "../../public/stickers/museum polaroid.png"
-import animeSticker from "../../public/stickers/animeIcon.png"
-
-import sushiPolaroid from "../../public/stickers/sushi polaroid.png"
-import sonnyAngel from "../../public/stickers/sonnyAngel.png"
-
-import aquariumPolaroid from "../../public/stickers/aquarium polaroid.png"
-import goldfish from "../../public/stickers/goldfish.png"
-import purpleButton from "../../public/stickers/purpleButton.png"
-
-import snoopyAndMiffy from "../../public/stickers/snoopyAndMiffyHugging.png"
-import arrow from "../../public/stickers/arrow.png"
-
 import Image from "next/image";
-import { useState } from "react";
+
+import first_frame from "../../public/polaroids/first_frame.png"
+import second_frame from "../../public/polaroids/second_frame.png"
+import third_frame from "../../public/polaroids/third_frame.png"
+import fourth_frame from "../../public/polaroids/fourth_frame.png"
+
+import felix from "../../public/stickers2/felix.png"
+import lily from "../../public/stickers2/lily.png"
+import miffy from "../../public/stickers2/miffy.png"
+import smiski from "../../public/stickers2/smiski.png"
+
+import paper from "../../public/other/paper.svg"
+
+import { useState, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
+
+const Crossword = dynamic(
+  () => import("@jaredreisinger/react-crossword").then((mod) => mod.default),
+  { ssr: false }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+) as any;
 
 export default function Home() {
   const [noClicks, setNoClicks] = useState(0);
   const [saidYes, setSaidYes] = useState(false);
   const [showContent, setShowContent] = useState(false);
+
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const touchStartX = useRef(0);
+  const touchDeltaX = useRef(0);
+  const [dragging, setDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+
+  const carouselFrames = [first_frame, second_frame, third_frame, fourth_frame];
+
+  const handleSwipeStart = useCallback((clientX: number) => {
+    touchStartX.current = clientX;
+    touchDeltaX.current = 0;
+    setDragging(true);
+  }, []);
+
+  const handleSwipeMove = useCallback((clientX: number) => {
+    if (!dragging) return;
+    const delta = clientX - touchStartX.current;
+    touchDeltaX.current = delta;
+    setDragOffset(delta);
+  }, [dragging]);
+
+  const handleSwipeEnd = useCallback(() => {
+    if (!dragging) return;
+    setDragging(false);
+    setDragOffset(0);
+    if (touchDeltaX.current < -40) {
+      setCarouselIndex((prev) => Math.min(prev + 1, carouselFrames.length - 1));
+    } else if (touchDeltaX.current > 40) {
+      setCarouselIndex((prev) => Math.max(prev - 1, 0));
+    }
+  }, [dragging, carouselFrames.length]);
 
   const questionText = saidYes
     ? "Yay!"
@@ -66,6 +86,8 @@ export default function Home() {
           className="w-full h-auto object-contain"
           unoptimized
         />
+        {!showContent && (
+          <>
          <h1 className="text-[24px] font-amiri mt-4 font-bold">{questionText}</h1>
          <div className="flex flex-row gap-4 mt-4 justify-center items-center">
           <button
@@ -84,6 +106,8 @@ export default function Home() {
             No
           </button>
          </div>
+          </>
+        )}
         {saidYes && !showContent && (
           <div className="flex flex-col items-center mt-8">
             <div className="pixel-loading-bar">
@@ -95,149 +119,100 @@ export default function Home() {
       </div>
       {showContent && (
         <>
-      {/* first header, should be able to open up a side panel */}
-      <div className="relative w-[8rem] h-[3rem] bg-white border border-gray-200 rounded-lg shadow-lg mt-8">
-        <ol className="absolute mt-4 text-center text-[12px] font-amiri w-[6rem] mx-auto left-0 right-0">
-          1. Start here! 🍵
-        </ol>
-      </div>
-      {/* sf polaroid */}
-      <div className="relative mt-10">
-        {/* polaroid base */}
-        <div className="relative w-[150px] h-[175px]">
-          <Image 
-            src={sfPolaroid} 
-            alt="sf polaroid" 
-            className="absolute top-0 left-0"
-            width={300}
-            height={400}
-          />
-          <p className="absolute bottom-4 left-0 right-0 text-center text-[12px] font-mooMoo">
-            SF with you was so lovely
-          </p>
-          <Image src={stargazerLily} alt="stargazer lilly" className="absolute top-0 left-48" width={50} height={50} />
-          <Image src={strawberry} alt="strawberry" className="absolute top-0 right-44" width={70} height={67} />
-          <Image src={matcha} alt="matcha" className="absolute top-32 left-48" width={100} height={80} />
-        </div>
-        
-        {/* miffy sticker overlay */}
-        <div className="absolute w-[40px] h-[60px] top-[-20px] left-[20px] z-10">
-          <Image 
-            src={miffy1} 
-            alt="miffy" 
-            className="absolute -top-2 left-24"
-          />
-        </div>
-      </div>
-      {/* header 2 */}
-      <div className="relative w-[12rem] h-[3rem] bg-white border border-gray-200 rounded-lg shadow-lg mt-12">
-        <ol className="absolute mt-4 text-center text-[12px] font-amiri w-[10rem] mx-auto left-0 right-0">
-          2. Couple things I love about you 
-        </ol>
-        <Image 
-          src={kiwi} 
-          alt="kiwi" 
-          className="absolute top-6 -left-24" 
-          width={55} 
-          height={60} 
-          priority
-        />
-      </div>
-      {/* Grid container with relative positioning */}
-      <div className="relative grid grid-cols-3 gap-4 mt-8">
-        {[
-          "You're the smartest animal science girl from Santa Ana I know",
-          "I love the way you always make me laugh",
-          "You're very sweet, caring, and creative",
-          "Nobody loves Miffy like you do",
-          "Your outfits are always so cute",
-          "Thank you for always trying to wake me up even if it doesn't work",
-          "I love how we can always talk about anything and everything",
-          "Thank you for laughing at my stupid jokes",
-          "I appreciate you being so understanding and patient with me",
-        ].map((text, index) => (
-          <div 
-            key={index}
-            className="w-[8rem] h-[4rem] bg-white border border-gray-200 rounded-lg shadow-lg mt-6"
+      {/* carousel of polaroids */}
+      <div className="flex flex-col items-center mt-8 w-full max-w-[250px]">
+        <div
+          className="relative w-[250px] h-[370px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
+          onTouchStart={(e) => handleSwipeStart(e.touches[0].clientX)}
+          onTouchMove={(e) => handleSwipeMove(e.touches[0].clientX)}
+          onTouchEnd={handleSwipeEnd}
+          onMouseDown={(e) => { e.preventDefault(); handleSwipeStart(e.clientX); }}
+          onMouseMove={(e) => handleSwipeMove(e.clientX)}
+          onMouseUp={handleSwipeEnd}
+          onMouseLeave={handleSwipeEnd}
+        >
+          <div
+            className={`flex h-full ${!dragging ? "transition-transform duration-300 ease-in-out" : ""}`}
+            style={{
+              transform: `translateX(calc(-${carouselIndex * 250}px + ${dragOffset}px))`,
+            }}
           >
-            <p className="text-[12px] font-amiri text-center">
-              {text}
-            </p>
+            {carouselFrames.map((frame, index) => {
+              const stickers = [miffy, smiski, felix, lily];
+              const positions = [
+                "top-0 -right-2",     // miffy: top-right
+                "top-0 -left-2",      // smiski: top-left
+                "bottom-1 -left-8",   // felix: bottom-left
+                "bottom-0 -right-2",  // lily: bottom-right
+              ];
+              return (
+                <div key={index} className="relative w-[250px] h-[370px] flex-shrink-0 overflow-hidden">
+                  <Image
+                    src={frame}
+                    alt={`polaroid ${index + 1}`}
+                    fill
+                    className="object-contain pointer-events-none"
+                    draggable={false}
+                  />
+                  <Image
+                    src={stickers[index]}
+                    alt="sticker"
+                    width={120}
+                    height={120}
+                    className={`absolute ${positions[index]} z-10 pointer-events-none`}
+                    draggable={false}
+                  />
+                </div>
+              );
+            })}
           </div>
-        ))}
-        {/* conch sticker */}
-        <div className="absolute -right-4 top-16">
-          <Image src={conch} alt="conch" width={60} height={80} />
         </div>
-        {/* blue heart sticker */}
-        <div className="absolute left-64 top-48">
-          <Image src={blueHeart} alt="blue heart" width={40} height={40} />
+        {/* star indicators */}
+        <div className="flex gap-2 mt-3">
+          {carouselFrames.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCarouselIndex(index)}
+              className="transition-colors text-[14px] leading-none"
+              aria-label={`Go to slide ${index + 1}`}
+            >
+              {index === carouselIndex ? "★" : "☆"}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* header 3 */}
-      <div className="relative w-[12rem] h-[3rem] bg-white border border-gray-200 rounded-lg shadow-lg mt-12">
-        <ol className="absolute mt-4 text-center text-[12px] font-amiri w-[10rem] mx-auto left-0 right-0">
-          3. Some of my favorite moments
-        </ol>
-      </div>
-      {/* photo display of polaroids */}
-      <div className="relative grid grid-cols-2 gap-y-28 gap-x-10 mt-8 justify-items-center max-w-[400px] mx-auto">
-        {[
-          point5Polaroid,
-          miffyPolaroid,
-          gardenPolaroid,
-          museumPolaroid,
-          sushiPolaroid,
-          aquariumPolaroid,
-        ].map((polaroid, index) => (
-          <div key={index} className="relative w-[150px] h-[175px]">
-            <Image src={polaroid} alt="polaroid" className="absolute top-0 left-0" />
-            {polaroid === museumPolaroid && (
-              <><Image
-                src={animeSticker}
-                alt="anime sticker"
-                className="absolute -bottom-14 -right-4"
-                width={90}
-                height={90} 
-              /><Image
-                  src={sonnyAngel}
-                  alt="sonny angel"
-                  className="absolute top-52 right-60"
-                  width={60}
-                  height={60} />
-                <Image
-                  src={tomato}
-                  alt="tomato"
-                  className="absolute top-40 right-72"
-                  width={35}
-                  height={35} />
-                <Image
-                  src={goldfish}
-                  alt="goldfish"
-                  className="absolute top-60 -right-2 z-10"
-                  width={90}
-                  height={90} />
-                <Image
-                  src={purpleButton}
-                  alt="purple button"
-                  className="absolute top-[27rem] right-28 z-10"
-                  width={35}
-                  height={35} />
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-      {/* snoopy and miffy image */}
-      <div className="relative w-[150px] h-[175px] mt-8">
-        <Image src={snoopyAndMiffy} alt="snoopy and miffy" className="absolute top-0 right-12" />
-        <Image src={arrow} alt="arrow" className="absolute top-6 -right-8" />
-        <p className="absolute -top-2 -right-20 text-[40px] font-mooMoo">Us</p>
-      </div>
-        </>
-      )}
-
+      {/* crossword puzzle */}
+      <div className="mt-10 w-full max-w-[800px]">
+  <Crossword
+    data={{
+      across: {
+        1: { clue: "Our poke place", answer: "GOODFRIENDS", row: 0, col: 0 },
+        6: { clue: "Your fav pillow", answer: "SUSHI", row: 5, col: 5 },
+        4: { clue: "Our favorite food to eat together", answer: "SNORLAX", row: 6, col: 8 },
+        7: { clue: "Our 1 year date", answer: "SANFRANCISCO", row: 11, col: 11 },
+        // 9: { clue: "Our first movie", answer: "INTOTHESPIDERVERSE", row: 15, col: 4 },
+      },
+      down: {
+        2: { clue: "Our first date", answer: "DUMPLINGHOUSE", row: 0, col: 9 },
+        3: { clue: "My old morning snacks I'd buy at the MU", answer: "CLIFFBAR", row: 5, col: 12 },
+        5: { clue: "Our only class together", answer: "BIS2A", row: 2, col: 13 },
+        8: { clue: "Cat we saw", answer: "CHEETOH", row: 11, col: 18 },
+      },
+    }}
+    theme={{
+      gridBackground: "transparent",
+      cellBackground: "#fff",
+      cellBorder: "#000",
+      textColor: "#000",
+      numberColor: "rgba(0,0,0,0.4)",
+      focusBackground: "#f7c6c7",
+      highlightBackground: "#fef3f3",
+    }}
+  />
+</div>
+    </>
+    )}
     </div>
   );
 }
