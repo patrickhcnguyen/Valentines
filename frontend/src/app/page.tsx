@@ -285,10 +285,10 @@ export default function Home() {
       </div>
 
       {/* crossword puzzle */}
-      <div className="crossword-section relative mt-16 sm:mt-24 md:mt-32 w-full max-w-[800px] flex flex-row flex-wrap gap-x-2 px-2 sm:px-4">
+      <div className="crossword-section relative mt-16 sm:mt-24 md:mt-32 w-full max-w-[800px] flex flex-row flex-wrap gap-x-2 px-2 sm:px-4 pb-12 sm:pb-0">
         {!paperDismissed ? (
           <div
-            className="absolute -top-8 -right-4 sm:-top-12 sm:-right-8 md:-top-20 md:-right-20 z-10 cursor-grab active:cursor-grabbing select-none touch-pan-y w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52"
+            className="absolute bottom-[-0.5rem] left-1/2 -translate-x-1/2 sm:bottom-auto sm:left-auto sm:translate-x-0 sm:-top-12 sm:-right-8 md:-top-20 md:-right-20 z-10 cursor-grab active:cursor-grabbing select-none touch-pan-y w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52"
             onTouchStart={(e) => handlePaperSwipeStart(e.touches[0].clientX)}
             onTouchMove={(e) => handlePaperSwipeMove(e.touches[0].clientX)}
             onTouchEnd={handlePaperSwipeEnd}
@@ -310,7 +310,7 @@ export default function Home() {
           </div>
         ) : (
           <div
-            className="absolute -top-8 -right-2 sm:-top-12 sm:-right-8 md:-top-20 md:-right-60 z-10 w-[200px] sm:w-[260px] md:w-[320px] lg:w-[360px] origin-center"
+            className="absolute bottom-[-0.5rem] left-1/2 -translate-x-1/2 sm:bottom-auto sm:left-auto sm:translate-x-0 sm:-top-12 sm:-right-8 md:-top-20 md:-right-60 z-10 w-[200px] sm:w-[260px] md:w-[320px] lg:w-[360px] origin-center"
             style={{ transform: "rotate(12deg)" }}
           >
             <div className="bg-transparent text-gray-800/90 text-xs sm:text-sm font-medium space-y-1 sm:space-y-2 p-2 sm:p-4">
